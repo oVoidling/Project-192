@@ -1,7 +1,7 @@
-let player = {
-  currentCash: 0
-};
+let currentCash = 0
+
 var bearhit = 0
+let gameOverr = false;
 let a = "pistol";
 let b = {
   ak47: [
@@ -133,18 +133,18 @@ AFRAME.registerComponent("gun",{
         storeText.setAttribute("visible",true)
         canPurchase=true
         document.addEventListener("keydown",(f)=>{
-          if(f.key==="1" && player.currentCash >= 300 && canPurchase == true){
+          if(f.key==="1" && currentCash >= 300 && canPurchase == true){
             const a1 = a
             const gun1 = document.querySelector(`#${a1}`)
             gun1.setAttribute("visible",false)
             console.log("Attempting to purchase MP5...");
-            console.log("Current cash:", player.currentCash);
+            console.log("Current cash:", currentCash);
             a = "MP5";
-            player.currentCash -= 300;
+            currentCash -= 300;
             const cashText = document.querySelector("#cash")
-            cashText.setAttribute("text",{value:`${player.currentCash} $`})
-            console.log("Updated current gun:", player.currentGun);
-            console.log("Remaining cash:", player.currentCash);
+            cashText.setAttribute("text",{value:`${currentCash} $`})
+            console.log("Updated current gun:", a);
+            console.log("Remaining cash:", currentCash);
             storeText.setAttribute("visible", false);
             const gun = document.querySelector(`#MP5`)
             gun.setAttribute("visible",true)     
@@ -158,18 +158,18 @@ AFRAME.registerComponent("gun",{
             totalBulletsText.setAttribute("text",{value:`${totalBullets}`})
             canPurchase=false
           }
-          else if(f.key==="2" && player.currentCash >= 450 && canPurchase == true){
+          else if(f.key==="2" && currentCash >= 450 && canPurchase == true){
             const a1 = a
             const gun1 = document.querySelector(`#${a1}`)
             gun1.setAttribute("visible",false)
             console.log("Attempting to purchase ak47...");
-            console.log("Current cash:", player.currentCash);
+            console.log("Current cash:", currentCash);
             a = "ak47";
-            player.currentCash -= 450;
+            currentCash -= 450;
             const cashText = document.querySelector("#cash")
-            cashText.setAttribute("text",{value:`${player.currentCash} $`})
-            console.log("Updated current gun:", player.currentGun);
-            console.log("Remaining cash:", player.currentCash);
+            cashText.setAttribute("text",{value:`${currentCash} $`})
+            console.log("Updated current gun:", currentGun);
+            console.log("Remaining cash:", currentCash);
             storeText.setAttribute("visible", false);
             const gun = document.querySelector(`#ak47`)
             gun.setAttribute("visible",true)
@@ -183,18 +183,18 @@ AFRAME.registerComponent("gun",{
             totalBulletsText.setAttribute("text",{value:`${totalBullets}`})
             canPurchase=false
           }
-          else if (f.key === "3" && player.currentCash >= 600 && canPurchase == true) {
+          else if (f.key === "3" && currentCash >= 600 && canPurchase == true) {
             const a1 = a
             const gun1 = document.querySelector(`#${a1}`)
             gun1.setAttribute("visible",false)
             console.log("Attempting to purchase sniper rifle...");
-            console.log("Current cash:", player.currentCash);
+            console.log("Current cash:", currentCash);
             a = "sniper";
-            player.currentCash -= 600;
+            currentCash -= 600;
             const cashText = document.querySelector("#cash")
-            cashText.setAttribute("text",{value:`${player.currentCash} $`})
-            console.log("Updated current gun:", player.currentGun);
-            console.log("Remaining cash:", player.currentCash);
+            cashText.setAttribute("text",{value:`${currentCash} $`})
+            console.log("Updated current gun:", currentGun);
+            console.log("Remaining cash:", currentCash);
             storeText.setAttribute("visible", false);
             const gun = document.querySelector(`#sniper`)
             gun.setAttribute("visible",true)
@@ -214,11 +214,24 @@ AFRAME.registerComponent("gun",{
   }
 })
 AFRAME.registerComponent("shoot", {
-  
   init: function () {
       console.log("loaded")
       this.playerEntity = document.querySelector("#camera-rig");
-      window.addEventListener("collide",this.deathRow)
+      const player = document.querySelector("#camera")
+      // Issue is here, the proble is that when the bear collides in line number 243 the gameOverr is set true but the collision is not detected so it doesn't work
+      // but at the same time when i manually set it to true in console, the if condition doesn't work
+      player.addEventListener("collide",this.deathRow)
+      if(gameOverr){
+        console.log("hit")
+        currentCash = 0;
+        a = "pistol";
+        const gameOver = document.querySelector("#death");
+        gameOver.setAttribute("visible", true);
+        setTimeout(() => {
+          gameOver.setAttribute("visible", false);
+        }, 3000);
+        gameOverr=false
+      }
       const magSizeText = document.querySelector("#magSizeText")
       const totalBulletsText = document.querySelector("#totalBulletsText")
       magSizeText.setAttribute("text",{value:`${bullets}`})
@@ -226,17 +239,9 @@ AFRAME.registerComponent("shoot", {
       this.shoot();
   },
   deathRow: function (e) {
-    const Player = e.detail.target.el;
-    const Bear = e.detail.body.el;
-    if (Bear.id.includes("Bear") && Player.id.includes("camera")) {
-      console.log("hit")
-      player.currentCash = 0;
-      a = "pistol";
-      const gameOver = document.querySelector("#death");
-      gameOver.setAttribute("visible", true);
-      setTimeout(() => {
-        gameOver.setAttribute("visible", false);
-      }, 3000);
+    const elementHit = e.detail.body.el
+    if (elementHit.id.includes("Bear")) {
+      gameOverr = true
     }
   },
   
@@ -328,9 +333,9 @@ AFRAME.registerComponent("shoot", {
       },1);
       console.log("2 hit!")
     }else if(bearhit==3){
-      player.currentCash += 20
+      currentCash += 20
       const cashText = document.querySelector("#cash")
-      cashText.setAttribute("text",{value:`${player.currentCash} $`})
+      cashText.setAttribute("text",{value:`${currentCash} $`})
       scene.removeChild(element)
       scene.removeChild(elementHit)
       console.log("3 hit!")
@@ -338,33 +343,33 @@ AFRAME.registerComponent("shoot", {
     }
     }
     if(elementHit.id.includes("Llama")){
-      player.currentCash += 16.5
+      currentCash += 16.5
       const cashText = document.querySelector("#cash")
-      cashText.setAttribute("text",{value:`${player.currentCash} $`})
+      cashText.setAttribute("text",{value:`${currentCash} $`})
       element.removeEventListener("collide",this.collision)
       scene.removeChild(element)
       scene.removeChild(elementHit)
     }
     if(elementHit.id.includes("Elephant")){
-      player.currentCash += 24
+      currentCash += 24
       const cashText = document.querySelector("#cash")
-      cashText.setAttribute("text",{value:`${player.currentCash} $`})
+      cashText.setAttribute("text",{value:`${currentCash} $`})
       element.removeEventListener("collide",this.collision)
       scene.removeChild(element)
       scene.removeChild(elementHit)
     }
     if(elementHit.id.includes("Deer")){
-      player.currentCash += 21
+      currentCash += 21
       const cashText = document.querySelector("#cash")
-      cashText.setAttribute("text",{value:`${player.currentCash} $`})
+      cashText.setAttribute("text",{value:`${currentCash} $`})
       element.removeEventListener("collide",this.collision)
       scene.removeChild(element)
       scene.removeChild(elementHit)
     }
     if(elementHit.id.includes("Wolf")){
-      player.currentCash += 19
+      currentCash += 19
       const cashText = document.querySelector("#cash")
-      cashText.setAttribute("text",{value:`${player.currentCash} $`})
+      cashText.setAttribute("text",{value:`${currentCash} $`})
       element.removeEventListener("collide",this.collision)
       scene.removeChild(element)
       scene.removeChild(elementHit)
@@ -388,12 +393,13 @@ AFRAME.registerComponent("shoot", {
       const bullets2 = b[a][0]["magSize"] - bullets
       totalBullets -= bullets2;
       bullets = b[a][0]["magSize"];
+      if(this.reloadText.getAttribute("visible",true)){
       this.reloadText.setAttribute("visible",false)
-
+      }
     } else {
       console.log("You've lost, we reset your guns and money and filled your ammo and started over again");
-      player.currentCash = 0;
-      player.currentGun = "pistol";
+      currentCash = 0;
+      currentGun = "pistol";
       totalBullets = b[a][0]["totalBullets"];
       bullets = b[a][0]["magSize"];
       const magSizeText = document.querySelector("#magSizeText")
