@@ -221,25 +221,36 @@ AFRAME.registerComponent("shoot", {
       // Issue is here, the proble is that when the bear collides in line number 243 the gameOverr is set true but the collision is not detected so it doesn't work
       // but at the same time when i manually set it to true in console, the if condition doesn't work
       player.addEventListener("collide",this.deathRow)
-      if(gameOverr){
-        console.log("hit")
-        currentCash = 0;
-        a = "pistol";
-        const gameOver = document.querySelector("#death");
-        gameOver.setAttribute("visible", true);
-        setTimeout(() => {
-          gameOver.setAttribute("visible", false);
-        }, 3000);
-        gameOverr=false
-      }
       const magSizeText = document.querySelector("#magSizeText")
       const totalBulletsText = document.querySelector("#totalBulletsText")
       magSizeText.setAttribute("text",{value:`${bullets}`})
       totalBulletsText.setAttribute("text",{value:`${totalBullets}`})
       this.shoot();
   },
+  tick:function(){
+    const player = document.querySelector("#hitbox")
+    player.addEventListener("collide",this.deathRow)
+    if(gameOverr){
+      console.log("hit")
+      currentCash = 0;
+      a = "pistol";
+      const gameOver = document.querySelector("#death");
+      gameOver.setAttribute("visible", true);
+      setTimeout(() => {
+        gameOver.setAttribute("visible", false);
+      }, 3000);
+      gameOverr=false
+    }
+    const magSizeText = document.querySelector("#magSizeText")
+    const totalBulletsText = document.querySelector("#totalBulletsText")
+    magSizeText.setAttribute("text",{value:`${bullets}`})
+    totalBulletsText.setAttribute("text",{value:`${totalBullets}`})
+    const cashText = document.querySelector("#cash")
+    cashText.setAttribute("text",{value:`${currentCash} $`})
+  },
   deathRow: function (e) {
     const elementHit = e.detail.body.el
+    console.log(elementHit)
     if (elementHit.id.includes("Bear")) {
       gameOverr = true
     }
